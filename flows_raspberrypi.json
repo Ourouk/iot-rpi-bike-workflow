@@ -1,1 +1,186 @@
-[{"id":"8b11abb0.fea768","type":"tab","label":"UI","disabled":false,"info":""},{"id":"2293b34c.04cf2c","type":"serial-port","serialport":"/dev/ttyS0","serialbaud":"19200","databits":"8","parity":"none","stopbits":"1","waitfor":"","dtr":"none","rts":"none","cts":"none","dsr":"none","newline":"\\n","bin":"false","out":"char","addchar":"","responsetimeout":"10000"},{"id":"cc55bb97.b39828","type":"grovepi-light","z":"8b11abb0.fea768","name":"Light sensor","pin":"1","x":130,"y":540,"wires":[["50bdeda2.79ca34"]]},{"id":"f7a2da9a.fcf038","type":"grovepi-rotary","z":"8b11abb0.fea768","name":"Rotary menu","pin":"2","x":110,"y":1020,"wires":[["4de48673.925e98"]]},{"id":"31b6f2.e94a590e","type":"grovepi-lcd-rgb","z":"8b11abb0.fea768","name":"","x":980,"y":1020,"wires":[]},{"id":"29d480f3.c8783","type":"grovepi-relay","z":"8b11abb0.fea768","name":"Relay","pin":"8","x":450,"y":540,"wires":[]},{"id":"4de48673.925e98","type":"function","z":"8b11abb0.fea768","name":"","func":"// Retrieve the previous values array and previous menu from the node's context\nlet values = context.get('values') || [];\nlet previousMenu = context.get('previousMenu');\n\n// Add the new value from the incoming message payload\nvalues.push(msg.payload);\n\n// If there are more than 10 values, remove the oldest one\nif (values.length > 10) {\n    values.shift();\n}\n\n// Calculate the moving average\nlet sum = values.reduce((acc, val) => acc + val, 0);\nlet average = sum / values.length;\n\n// Store the updated values array back in the node's context\ncontext.set('values', values);\n\n// Create a new message with the moving average\nlet averageMsg = { payload: average };\n\nvar analogValue = averageMsg.payload;\n\nvar menu;\n\nif (analogValue >= 0 && analogValue < 100) {\n    menu = 1;\n} else if (analogValue >= 100 && analogValue < 200) {\n    menu = 2;\n} else if (analogValue >= 200 && analogValue < 300) {\n    menu = 3;\n} else if (analogValue >= 300 && analogValue < 400) {\n    menu = 4;\n} else if (analogValue >= 400 && analogValue < 500) {\n    menu = 5;\n} else if (analogValue >= 500 && analogValue < 600) {\n    menu = 6;\n} else if (analogValue >= 600 && analogValue < 700) {\n    menu = 7;\n} else if (analogValue >= 700 && analogValue < 800) {\n    menu = 8;\n} else if (analogValue >= 800 && analogValue < 900) {\n    menu = 9;\n} else if (analogValue >= 900 && analogValue < 1000) {\n    menu = 10;\n} else if (analogValue >= 1000 && analogValue <= 1100) {\n    menu = 11;\n} else {\n    menu = 0;\n}\n\n// Check if the menu value has changed\nif (menu !== previousMenu) {\n    // Update the previous menu in the context\n    context.set('previousMenu', menu);\n    \n    // Create a new message with the updated menu\n    msg.payload = menu;\n\n    // Return the message\n    return msg;\n}\n\n// If the menu hasn't changed, return nothing\nreturn null;\n","outputs":1,"noerr":0,"initialize":"","finalize":"","libs":[],"x":280,"y":1020,"wires":[[]]},{"id":"50bdeda2.79ca34","type":"function","z":"8b11abb0.fea768","name":"","func":"// Retrieve the previous values array and previous frontLight from the node's context\nlet values = context.get('values') || [];\nlet previousfrontLight = context.get('frontLight');\n\n// Add the new value from the incoming message payload\nvalues.push(msg.payload);\n\n// If there are more than 10 values, remove the oldest one\nif (values.length > 10) {\n    values.shift();\n}\n\n// Calculate the moving average\nlet sum = values.reduce((acc, val) => acc + val, 0);\nlet average = sum / values.length;\n\n// Store the updated values array back in the node's context\ncontext.set('values', values);\n\n// Store the average in a global variable\nglobal.set('averageLight', average);\n\nlet frontLight = 0;\nif (average >= 0 && average < 400) {\n    frontLight = 1;\n} else {\n    frontLight = 0;\n}\n\n// Check if the frontLight value has changed\nif (frontLight !== previousfrontLight) {\n    // Update the frontLight in the context\n    context.set('frontLight', frontLight);\n    \n    // Create a new message with the updated frontLight\n    msg.payload = frontLight;\n    \n    // Return the message\n    return msg;\n}\n\n// If the frontLight hasn't changed, return nothing\nreturn null;\n","outputs":1,"noerr":0,"initialize":"","finalize":"","libs":[],"x":300,"y":540,"wires":[["29d480f3.c8783"]]},{"id":"9b34c816.e3b17","type":"daemon","z":"8b11abb0.fea768","d":true,"name":"Button","command":"python","args":"/home/pi/grove_button.py","autorun":true,"cr":false,"redo":true,"op":"number","closer":"SIGKILL","x":90,"y":1140,"wires":[[],[],[]]},{"id":"e7247d8e.09526","type":"daemon","z":"8b11abb0.fea768","d":true,"name":"GPS","command":"python","args":"/home/pi/dextergps.py","autorun":true,"cr":false,"redo":true,"op":"string","closer":"SIGKILL","x":90,"y":1200,"wires":[[],[],[]]},{"id":"a6f2b31e.db31c","type":"grovepi-led","z":"8b11abb0.fea768","name":"Red","pin":"3","set":"","x":650,"y":1560,"wires":[]},{"id":"e3e9cc15.c5552","type":"grovepi-led","z":"8b11abb0.fea768","name":"Blue","pin":"4","set":"","x":650,"y":1600,"wires":[]},{"id":"e1885eb5.9ed17","type":"grovepi-led","z":"8b11abb0.fea768","name":"Green","pin":"5","set":"","x":650,"y":1640,"wires":[]}]
+[
+    {
+        "id": "8b11abb0.fea768",
+        "type": "tab",
+        "label": "UI",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "2293b34c.04cf2c",
+        "type": "serial-port",
+        "serialport": "/dev/ttyS0",
+        "serialbaud": "19200",
+        "databits": "8",
+        "parity": "none",
+        "stopbits": "1",
+        "waitfor": "",
+        "dtr": "none",
+        "rts": "none",
+        "cts": "none",
+        "dsr": "none",
+        "newline": "\\n",
+        "bin": "false",
+        "out": "char",
+        "addchar": "",
+        "responsetimeout": "10000"
+    },
+    {
+        "id": "cc55bb97.b39828",
+        "type": "grovepi-light",
+        "z": "8b11abb0.fea768",
+        "name": "Light sensor",
+        "pin": "1",
+        "x": 130,
+        "y": 540,
+        "wires": [
+            [
+                "50bdeda2.79ca34"
+            ]
+        ]
+    },
+    {
+        "id": "f7a2da9a.fcf038",
+        "type": "grovepi-rotary",
+        "z": "8b11abb0.fea768",
+        "name": "Rotary menu",
+        "pin": "2",
+        "x": 130,
+        "y": 600,
+        "wires": [
+            [
+                "4de48673.925e98"
+            ]
+        ]
+    },
+    {
+        "id": "31b6f2.e94a590e",
+        "type": "grovepi-lcd-rgb",
+        "z": "8b11abb0.fea768",
+        "name": "",
+        "x": 980,
+        "y": 1020,
+        "wires": []
+    },
+    {
+        "id": "29d480f3.c8783",
+        "type": "grovepi-relay",
+        "z": "8b11abb0.fea768",
+        "name": "Relay",
+        "pin": "8",
+        "x": 450,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "4de48673.925e98",
+        "type": "function",
+        "z": "8b11abb0.fea768",
+        "name": "",
+        "func": "// Retrieve the previous values array and previous menu from the node's context\nlet values = context.get('values') || [];\nlet previousMenu = context.get('previousMenu');\n\n// Add the new value from the incoming message payload\nvalues.push(msg.payload);\n\n// If there are more than 10 values, remove the oldest one\nif (values.length > 10) {\n    values.shift();\n}\n\n// Calculate the moving average\nlet sum = values.reduce((acc, val) => acc + val, 0);\nlet average = sum / values.length;\n\n// Store the updated values array back in the node's context\ncontext.set('values', values);\n\n// Create a new message with the moving average\nlet averageMsg = { payload: average };\n\nvar analogValue = averageMsg.payload;\n\nvar menu;\n\nif (analogValue >= 0 && analogValue < 100) {\n    menu = 1;\n} else if (analogValue >= 100 && analogValue < 200) {\n    menu = 2;\n} else if (analogValue >= 200 && analogValue < 300) {\n    menu = 3;\n} else if (analogValue >= 300 && analogValue < 400) {\n    menu = 4;\n} else if (analogValue >= 400 && analogValue < 500) {\n    menu = 5;\n} else if (analogValue >= 500 && analogValue < 600) {\n    menu = 6;\n} else if (analogValue >= 600 && analogValue < 700) {\n    menu = 7;\n} else if (analogValue >= 700 && analogValue < 800) {\n    menu = 8;\n} else if (analogValue >= 800 && analogValue < 900) {\n    menu = 9;\n} else if (analogValue >= 900 && analogValue < 1000) {\n    menu = 10;\n} else if (analogValue >= 1000 && analogValue <= 1100) {\n    menu = 11;\n} else {\n    menu = 0;\n}\n\n// Store the menu value in a global variable\nglobal.set('menu', menu);\n\n// Check if the menu value has changed\nif (menu !== previousMenu) {\n    // Update the previous menu in the context\n    context.set('previousMenu', menu);\n    \n    // Create a new message with the updated menu\n    msg.payload = menu;\n\n    // Return the message\n    return msg;\n}\n\n// If the menu hasn't changed, return nothing\nreturn null;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 600,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "50bdeda2.79ca34",
+        "type": "function",
+        "z": "8b11abb0.fea768",
+        "name": "",
+        "func": "// Retrieve the previous values array and previous frontLight from the node's context\nlet values = context.get('values') || [];\nlet previousfrontLight = context.get('frontLight');\n\n// Add the new value from the incoming message payload\nvalues.push(msg.payload);\n\n// If there are more than 10 values, remove the oldest one\nif (values.length > 10) {\n    values.shift();\n}\n\n// Calculate the moving average\nlet sum = values.reduce((acc, val) => acc + val, 0);\nlet average = sum / values.length;\n\n// Store the updated values array back in the node's context\ncontext.set('values', values);\n\n// Store the average in a global variable\nglobal.set('averageLight', average);\n\nlet frontLight = 0;\nif (average >= 0 && average < 400) {\n    frontLight = 1;\n} else {\n    frontLight = 0;\n}\n\n// Check if the frontLight value has changed\nif (frontLight !== previousfrontLight) {\n    // Update the frontLight in the context\n    context.set('frontLight', frontLight);\n    \n    // Create a new message with the updated frontLight\n    msg.payload = frontLight;\n    \n    // Return the message\n    return msg;\n}\n\n// If the frontLight hasn't changed, return nothing\nreturn null;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 540,
+        "wires": [
+            [
+                "29d480f3.c8783"
+            ]
+        ]
+    },
+    {
+        "id": "9b34c816.e3b17",
+        "type": "daemon",
+        "z": "8b11abb0.fea768",
+        "d": true,
+        "name": "Button",
+        "command": "python",
+        "args": "/home/pi/grove_button.py",
+        "autorun": true,
+        "cr": false,
+        "redo": true,
+        "op": "number",
+        "closer": "SIGKILL",
+        "x": 90,
+        "y": 1140,
+        "wires": [
+            [],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "e7247d8e.09526",
+        "type": "daemon",
+        "z": "8b11abb0.fea768",
+        "d": true,
+        "name": "GPS",
+        "command": "python",
+        "args": "/home/pi/dextergps.py",
+        "autorun": true,
+        "cr": false,
+        "redo": true,
+        "op": "string",
+        "closer": "SIGKILL",
+        "x": 90,
+        "y": 1200,
+        "wires": [
+            [],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "a6f2b31e.db31c",
+        "type": "grovepi-led",
+        "z": "8b11abb0.fea768",
+        "name": "Red",
+        "pin": "3",
+        "set": "",
+        "x": 650,
+        "y": 1560,
+        "wires": []
+    },
+    {
+        "id": "e3e9cc15.c5552",
+        "type": "grovepi-led",
+        "z": "8b11abb0.fea768",
+        "name": "Blue",
+        "pin": "4",
+        "set": "",
+        "x": 650,
+        "y": 1600,
+        "wires": []
+    },
+    {
+        "id": "e1885eb5.9ed17",
+        "type": "grovepi-led",
+        "z": "8b11abb0.fea768",
+        "name": "Green",
+        "pin": "5",
+        "set": "",
+        "x": 650,
+        "y": 1640,
+        "wires": []
+    }
+]
