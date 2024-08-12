@@ -1,0 +1,12 @@
+{
+    "name": "iot-rpi-bike-workflow",
+    "description": "A simple workflow to manage sensors and output for the project",
+    "version": "0.0.1",
+    "dependencies": {},
+    "node-red": {
+        "settings": {
+            "flowFile": "flows_raspberrypi.json",
+            "credentialsFile": "flows_raspberrypi_cred.json"
+        }
+    }
+}
