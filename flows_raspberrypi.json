@@ -58,8 +58,8 @@
         "type": "grovepi-lcd-rgb",
         "z": "8b11abb0.fea768",
         "name": "",
-        "x": 980,
-        "y": 1020,
+        "x": 540,
+        "y": 700,
         "wires": []
     },
     {
@@ -68,7 +68,7 @@
         "z": "8b11abb0.fea768",
         "name": "Relay",
         "pin": "8",
-        "x": 450,
+        "x": 490,
         "y": 540,
         "wires": []
     },
@@ -76,31 +76,29 @@
         "id": "4de48673.925e98",
         "type": "function",
         "z": "8b11abb0.fea768",
-        "name": "",
-        "func": "// Retrieve the previous values array and previous menu from the node's context\nlet values = context.get('values') || [];\nlet previousMenu = context.get('previousMenu');\n\n// Add the new value from the incoming message payload\nvalues.push(msg.payload);\n\n// If there are more than 10 values, remove the oldest one\nif (values.length > 10) {\n    values.shift();\n}\n\n// Calculate the moving average\nlet sum = values.reduce((acc, val) => acc + val, 0);\nlet average = sum / values.length;\n\n// Store the updated values array back in the node's context\ncontext.set('values', values);\n\n// Create a new message with the moving average\nlet averageMsg = { payload: average };\n\nvar analogValue = averageMsg.payload;\n\nvar menu;\n\nif (analogValue >= 0 && analogValue < 100) {\n    menu = 1;\n} else if (analogValue >= 100 && analogValue < 200) {\n    menu = 2;\n} else if (analogValue >= 200 && analogValue < 300) {\n    menu = 3;\n} else if (analogValue >= 300 && analogValue < 400) {\n    menu = 4;\n} else if (analogValue >= 400 && analogValue < 500) {\n    menu = 5;\n} else if (analogValue >= 500 && analogValue < 600) {\n    menu = 6;\n} else if (analogValue >= 600 && analogValue < 700) {\n    menu = 7;\n} else if (analogValue >= 700 && analogValue < 800) {\n    menu = 8;\n} else if (analogValue >= 800 && analogValue < 900) {\n    menu = 9;\n} else if (analogValue >= 900 && analogValue < 1000) {\n    menu = 10;\n} else if (analogValue >= 1000 && analogValue <= 1100) {\n    menu = 11;\n} else {\n    menu = 0;\n}\n\n// Store the menu value in a global variable\nglobal.set('menu', menu);\n\n// Check if the menu value has changed\nif (menu !== previousMenu) {\n    // Update the previous menu in the context\n    context.set('previousMenu', menu);\n    \n    // Create a new message with the updated menu\n    msg.payload = menu;\n\n    // Return the message\n    return msg;\n}\n\n// If the menu hasn't changed, return nothing\nreturn null;\n",
-        "outputs": 1,
+        "name": "Rotary Menu Select",
+        "func": "// Retrieve the previous values array and previous menu from the node's context\nlet values = context.get('values') || [];\nlet previousMenu = context.get('previousMenu');\n\n// Add the new value from the incoming message payload\nvalues.push(msg.payload);\n\n// If there are more than 10 values, remove the oldest one\nif (values.length > 10) {\n    values.shift();\n}\n\n// Calculate the moving average\nlet sum = values.reduce((acc, val) => acc + val, 0);\nlet average = sum / values.length;\n\n// Store the updated values array back in the node's context\ncontext.set('values', values);\n\n// Create a new message with the moving average\nlet averageMsg = { payload: average };\n\nvar analogValue = averageMsg.payload;\n\nvar menu;\n\nif (analogValue >= 0 && analogValue < 100) {\n    menu = 1;\n} else if (analogValue >= 100 && analogValue < 200) {\n    menu = 2;\n} else if (analogValue >= 200 && analogValue < 300) {\n    menu = 3;\n} else if (analogValue >= 300 && analogValue < 400) {\n    menu = 4;\n} else if (analogValue >= 400 && analogValue < 500) {\n    menu = 5;\n} else if (analogValue >= 500 && analogValue < 600) {\n    menu = 6;\n} else if (analogValue >= 600 && analogValue < 700) {\n    menu = 7;\n} else if (analogValue >= 700 && analogValue < 800) {\n    menu = 8;\n} else if (analogValue >= 800 && analogValue < 900) {\n    menu = 9;\n} else if (analogValue >= 900 && analogValue < 1000) {\n    menu = 10;\n} else if (analogValue >= 1000 && analogValue <= 1100) {\n    menu = 11;\n} else {\n    menu = 0;\n}\n\n// Store the menu value in a global variable\nglobal.set('menu', menu);",
+        "outputs": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 300,
+        "x": 340,
         "y": 600,
-        "wires": [
-            []
-        ]
+        "wires": []
     },
     {
         "id": "50bdeda2.79ca34",
         "type": "function",
         "z": "8b11abb0.fea768",
-        "name": "",
+        "name": "Light Manager",
         "func": "// Retrieve the previous values array and previous frontLight from the node's context\nlet values = context.get('values') || [];\nlet previousfrontLight = context.get('frontLight');\n\n// Add the new value from the incoming message payload\nvalues.push(msg.payload);\n\n// If there are more than 10 values, remove the oldest one\nif (values.length > 10) {\n    values.shift();\n}\n\n// Calculate the moving average\nlet sum = values.reduce((acc, val) => acc + val, 0);\nlet average = sum / values.length;\n\n// Store the updated values array back in the node's context\ncontext.set('values', values);\n\n// Store the average in a global variable\nglobal.set('averageLight', average);\n\nlet frontLight = 0;\nif (average >= 0 && average < 400) {\n    frontLight = 1;\n} else {\n    frontLight = 0;\n}\n\n// Check if the frontLight value has changed\nif (frontLight !== previousfrontLight) {\n    // Update the frontLight in the context\n    context.set('frontLight', frontLight);\n    \n    // Create a new message with the updated frontLight\n    msg.payload = frontLight;\n    \n    // Return the message\n    return msg;\n}\n\n// If the frontLight hasn't changed, return nothing\nreturn null;\n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 300,
+        "x": 320,
         "y": 540,
         "wires": [
             [
@@ -182,5 +180,43 @@
         "x": 650,
         "y": 1640,
         "wires": []
+    },
+    {
+        "id": "e9dc4f86.0e40a",
+        "type": "inject",
+        "z": "8b11abb0.fea768",
+        "name": "",
+        "props": [],
+        "repeat": "2",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 140,
+        "y": 700,
+        "wires": [
+            [
+                "5cf8fa42.adf424"
+            ]
+        ]
+    },
+    {
+        "id": "5cf8fa42.adf424",
+        "type": "function",
+        "z": "8b11abb0.fea768",
+        "name": "Refresh screen",
+        "func": "// Store the menu value in a global variable\nlet previousMenu = context.get('previousMenu') || {}; \nlet menu = global.get('menu');\n\n// Check if the menu value has changed\nif (menu !== previousMenu) {\n    // Update the previous menu in the context\n    context.set('previousMenu', menu);\n    \n    // Create a new message based on the menu value\n    msg.payload = {}; // Initialize msg.payload as an object\n    if (menu === 1) {\n        let averageLight = global.get(\"averageLight\");\n        msg.payload.text = `Average Light: ${averageLight}`;\n    } else if (menu === 2) {\n        msg.payload.text = \"Option 2: Second entry\";\n    } else if (menu === 3) {\n        msg.payload.text = \"Option 3: Third entry\";\n    } else if (menu === 4) {\n        msg.payload.text = \"Option 4: Fourth entry\";\n    } else if (menu === 5) {\n        msg.payload.text = \"Option 5: Fifth entry\";\n    } else if (menu === 6) {\n        msg.payload.text = \"Option 6: Sixth entry\";\n    } else if (menu === 7) {\n        msg.payload.text = \"Option 7: Seventh entry\";\n    } else if (menu === 8) {\n        msg.payload.text = \"Option 8: Eighth entry\";\n    } else if (menu === 9) {\n        msg.payload.text = \"Option 9: Ninth entry\";\n    } else if (menu === 10) {\n        msg.payload.text = \"Option 10: Tenth entry\";\n    } else if (menu === 11) {\n        msg.payload.text = \"Option 11: Eleventh entry\";\n    } else {\n        msg.payload.text = \"Invalid menu selection\";\n    }\n\n    // Ensure the text is limited to 32 characters\n    if (msg.payload.text.length > 32) {\n        msg.payload.text = msg.payload.text.substring(0, 32);\n    }\n\n    // Return the message\n    return msg;\n}\n\n// If the menu hasn't changed, return nothing\nreturn null;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 700,
+        "wires": [
+            [
+                "31b6f2.e94a590e"
+            ]
+        ]
     }
 ]
